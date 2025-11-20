@@ -88,17 +88,28 @@
   }
 
   const fusionCurrentWeatherInfo = (detail) => {
-    const tempElement = detail.WeatherElement[0]
-    const weatherElement = detail.WeatherElement[8]
-    const rainElement = detail.WeatherElement[7]
+    const tempElement = detail.WeatherElement[0] // 溫度
+    const rainElement = detail.WeatherElement[7] // 降雨率
+    const weatherElement = detail.WeatherElement[8] // 天氣概況
+    const realFeelElement = detail.WeatherElement[3] // 體感溫度
+    const windElement = detail.WeatherElement[5] // 風速
+    const windDirElement = detail.WeatherElement[6] // 風向
 
     const tempItem = findLatestItem(tempElement.Time)
-    const weatherItem = findLatestItem(weatherElement.Time, 'StartTime')
     const rainItem = findLatestItem(rainElement.Time, 'StartTime')
+    const weatherItem = findLatestItem(weatherElement.Time, 'StartTime')
+    const realFeelItem = findLatestItem(realFeelElement.Time)
+    const windItem = findLatestItem(windElement.Time)
+    const windDirItem = findLatestItem(windDirElement.Time)
+
+    console.log(tempItem)
 
     currentDistTemp.value.temperature = tempItem?.ElementValue[0]?.Temperature ?? null
-    currentDistTemp.value.weatherCode = weatherItem?.ElementValue[0]?.WeatherCode ?? null
     currentDistTemp.value.chanceOfRain = rainItem?.ElementValue[0]?.ProbabilityOfPrecipitation ?? null
+    currentDistTemp.value.weatherCode = weatherItem?.ElementValue[0]?.WeatherCode ?? null
+    currentDistTemp.value.ApparentTemperature = realFeelItem?.ElementValue[0]?.ApparentTemperature ?? null
+    currentDistTemp.value.windSpeed = windItem?.ElementValue[0]?.WindSpeed ?? null
+    currentDistTemp.value.windDirection = windDirItem?.ElementValue[0]?.WindDirection ?? null
   }
 
   const getCurrentDistWeatherInfo = (dist) => {
@@ -138,10 +149,9 @@
       <div class="row">
         <div class="col-12 col-md-8">
           <div class="dist_weather">
-            <!-- selector -->
             <div class="d-flex mb-3">
               <select
-                class="form-control mx-1"
+                class="form-control mx-1 selector"
                 id="city_selector"
                 v-model="selectedCity"
               >
@@ -155,7 +165,7 @@
                 </option>
               </select>
               <select
-                class="form-control mx-1"
+                class="form-control mx-1 selector"
                 id="dir_selector"
                 v-model="selectedDist"
               >
@@ -168,12 +178,11 @@
                 </option>
               </select>
             </div>
-            <!-- display -->
             <div class="d-flex justify-content-between">
               <div>
                 <div class="mb-3">
                   <h3>{{ selectedDist }}</h3>
-                  <small class="text-muted">降雨機率：{{ currentDistTemp.chanceOfRain }}%</small>
+                  <h6 class="text-muted">降雨機率：{{ currentDistTemp.chanceOfRain }}%</h6>
                 </div>
                 <div class="main_temp">
                   {{ currentDistTemp.temperature }}&#8451;
@@ -182,8 +191,30 @@
               <img :src="weatherIcon[`icon${currentDistTemp.weatherCode}`]" width="100px" alt="">
             </div>
           </div>
-          <div class="dist_weather">Area_2</div>
-          <div class="dist_weather">Area_3</div>
+          <div class="dist_weather">
+            <h6 class="mb-3">今日天氣</h6>
+          </div>
+          <div class="dist_weather">
+            <h6 class="mb-3">空氣條件</h6>
+            <div class="row pl-2">
+              <div class="col-12 col-md-6 mb-3">
+                <i class="bi bi-thermometer-half"></i><span class="ml-3">體感溫度</span>
+                <div class="air_content">{{ currentDistTemp.ApparentTemperature }}&#8451;</div>
+              </div>
+              <div class="col-12 col-md-6 mb-3">
+                <i class="bi bi-cloud-rain-fill"></i><span class="ml-3">降雨機率</span>
+                <div class="air_content">{{ currentDistTemp.chanceOfRain }}%</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <i class="bi bi-wind"></i><span class="ml-3">風速</span>
+                <div class="air_content">{{ currentDistTemp.windSpeed }}</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <i class="bi bi-signpost-split-fill"></i><span class="ml-3">風向</span>
+                <div class="air_content">{{ currentDistTemp.windDirection }}</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="col-12 col-md-4 mt-3 mt-md-0">
           <div class="city_weather">Area_1</div>
