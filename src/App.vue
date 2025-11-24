@@ -99,10 +99,7 @@
   }
 
   const getTodayForecast = (weather, temp) => {
-    const target = weather.Time[0].StartTime.slice(0, 10)
-    
     const result = weather.Time
-      .filter(item => item.StartTime.slice(0, 10) === target)
       .map(mapItem => {
         const startKey = mapItem.StartTime.slice(0, 13)
         const tmpItem = temp.Time.find(t => t.DataTime.slice(0, 13) === startKey)
@@ -119,8 +116,7 @@
         }
       })
 
-    console.log(result)
-    todayForecast.value = result
+    todayForecast.value = result.slice(0, 6)
   } 
 
   const fusionCurrentWeatherInfo = (detail) => {
@@ -228,7 +224,7 @@
             </div>
           </div>
           <div class="dist_weather">
-            <h6 class="title mb-3">今日預報</h6>
+            <h6 class="title mb-3">3小時預報</h6>
             <div class="row">
               <div
                 class="col-6 col-md-2 text-center"
