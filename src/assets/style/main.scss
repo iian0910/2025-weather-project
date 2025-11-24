@@ -4,7 +4,7 @@
 @import "bootstrap/scss/bootstrap.scss";
 
 .weather_bg {
-  background-color: #1b263b;
+  background-color: #0e192b;
   width: 100%;
   height: 100vh;
   color: white;
@@ -19,7 +19,7 @@
   }
   &:nth-child(2),
   &:nth-child(3) {
-    background-color: rgba(#e0e1dd, 0.3);
+    background-color: #232933;
   }
 }
 .city_weather {
@@ -27,7 +27,7 @@
   padding: 40px;
   border: 1px dotted white;
   border-radius: 16px;
-  background-color: rgba(#e0e1dd, 0.3);
+  background-color: #232933;
 }
 .main_temp {
   font-size: 60px;
