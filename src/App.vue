@@ -17,6 +17,7 @@
 
   const distSelectorItem = ref([])
   const distAllInfoData = ref([])  
+  const todayForecast = ref([])
 
   // const weatherInfo = ref(null)
 
@@ -87,6 +88,41 @@
     return result
   }
 
+  const toAMPM = (dateStr) => {
+    const hour = parseInt(dateStr.slice(11, 13)) // 06 → 6
+    const minute = dateStr.slice(14, 16) // "00"
+
+    const unit = hour >= 12 ? "PM" : "AM"
+    const h12 = hour % 12 === 0 ? 12 : hour % 12
+
+    return `${h12}:${minute}${unit}`;
+  }
+
+  const getTodayForecast = (weather, temp) => {
+    const target = weather.Time[0].StartTime.slice(0, 10)
+    
+    const result = weather.Time
+      .filter(item => item.StartTime.slice(0, 10) === target)
+      .map(mapItem => {
+        const startKey = mapItem.StartTime.slice(0, 13)
+        const tmpItem = temp.Time.find(t => t.DataTime.slice(0, 13) === startKey)
+
+        return {
+          StartTime: toAMPM(mapItem.StartTime),
+          ElementValue: [
+            {
+              Temperature: tmpItem?.ElementValue?.[0]?.Temperature ?? null,
+              Weather: mapItem.ElementValue[0].Weather,
+              WeatherCode: mapItem.ElementValue[0].WeatherCode
+            }
+          ]
+        }
+      })
+
+    console.log(result)
+    todayForecast.value = result
+  } 
+
   const fusionCurrentWeatherInfo = (detail) => {
     const tempElement = detail.WeatherElement[0] // 溫度
     const rainElement = detail.WeatherElement[7] // 降雨率
@@ -94,6 +130,8 @@
     const realFeelElement = detail.WeatherElement[3] // 體感溫度
     const windElement = detail.WeatherElement[5] // 風速
     const windDirElement = detail.WeatherElement[6] // 風向
+    
+    getTodayForecast(weatherElement, tempElement)
 
     const tempItem = findLatestItem(tempElement.Time)
     const rainItem = findLatestItem(rainElement.Time, 'StartTime')
@@ -101,8 +139,6 @@
     const realFeelItem = findLatestItem(realFeelElement.Time)
     const windItem = findLatestItem(windElement.Time)
     const windDirItem = findLatestItem(windDirElement.Time)
-
-    console.log(tempItem)
 
     currentDistTemp.value.temperature = tempItem?.ElementValue[0]?.Temperature ?? null
     currentDistTemp.value.chanceOfRain = rainItem?.ElementValue[0]?.ProbabilityOfPrecipitation ?? null
@@ -182,35 +218,46 @@
               <div>
                 <div class="mb-3">
                   <h3>{{ selectedDist }}</h3>
-                  <h6 class="text-muted">降雨機率：{{ currentDistTemp.chanceOfRain }}%</h6>
+                  <h6 class="subTitle">降雨機率：{{ currentDistTemp.chanceOfRain }}%</h6>
                 </div>
                 <div class="main_temp">
                   {{ currentDistTemp.temperature }}&#8451;
                 </div>
               </div>
-              <img :src="weatherIcon[`icon${currentDistTemp.weatherCode}`]" width="100px" alt="">
+              <img :src="weatherIcon[`icon${currentDistTemp.weatherCode}`]" width="130px" alt="">
             </div>
           </div>
           <div class="dist_weather">
-            <h6 class="mb-3">今日天氣</h6>
+            <h6 class="title mb-3">今日預報</h6>
+            <div class="row">
+              <div
+                class="col-6 col-md-2 text-center"
+                v-for="(item, idx) in todayForecast"
+                :key="idx"
+              >
+                <div class="subTitle mb-3">{{item.StartTime}}</div>
+                <img class="mb-3" :src="weatherIcon[`icon${item.ElementValue[0].WeatherCode}`]" alt="" width="50px" height="50px">
+                <h5 class="font-weight-bold mb-0">{{item.ElementValue[0].Temperature}}</h5>
+              </div>
+            </div>
           </div>
           <div class="dist_weather">
-            <h6 class="mb-3">空氣條件</h6>
+            <h6 class="title mb-3">空氣條件</h6>
             <div class="row pl-2">
               <div class="col-12 col-md-6 mb-3">
-                <i class="bi bi-thermometer-half"></i><span class="ml-3">體感溫度</span>
+                <i class="subTitle bi bi-thermometer-half"></i><span class="subTitle ml-3">體感溫度</span>
                 <div class="air_content">{{ currentDistTemp.ApparentTemperature }}&#8451;</div>
               </div>
               <div class="col-12 col-md-6 mb-3">
-                <i class="bi bi-cloud-rain-fill"></i><span class="ml-3">降雨機率</span>
+                <i class="subTitle bi bi-cloud-rain-fill"></i><span class="subTitle ml-3">降雨機率</span>
                 <div class="air_content">{{ currentDistTemp.chanceOfRain }}%</div>
               </div>
               <div class="col-12 col-md-6">
-                <i class="bi bi-wind"></i><span class="ml-3">風速</span>
+                <i class="subTitle bi bi-wind"></i><span class="subTitle ml-3">風速</span>
                 <div class="air_content">{{ currentDistTemp.windSpeed }}</div>
               </div>
               <div class="col-12 col-md-6">
-                <i class="bi bi-signpost-split-fill"></i><span class="ml-3">風向</span>
+                <i class="subTitle bi bi-signpost-split-fill"></i><span class="subTitle ml-3">風向</span>
                 <div class="air_content">{{ currentDistTemp.windDirection }}</div>
               </div>
             </div>
