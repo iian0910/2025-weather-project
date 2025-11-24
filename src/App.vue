@@ -51,6 +51,7 @@
     try {
       if(isDataExit) {
         isDataExit.Location.forEach(item => distSelectorItem.value.push(item.LocationName))
+        selectedDist.value = isDataExit.Location[0].LocationName
         distAllInfoData.value = isDataExit.Location
         
         getCurrentDistWeatherInfo(selectedDist.value)
