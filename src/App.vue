@@ -10,7 +10,7 @@
   const store = useWeatherStore()
 
   // // DATA
-  const selectedDist = ref('中正區')
+  const selectedDist = ref('')
 
   const currentDistTemp = ref({})
   const selectedCity = ref({key: 'F-D0047-061' , value: '臺北市'})
@@ -61,6 +61,7 @@
         const { data } = await axios.get(`${API_URL}/${obj.key}?Authorization=${API_AUTH}&format=JSON`)
 
         const distData = data.records.Locations[0]
+        selectedDist.value = distData.Location[0].LocationName
         distData.Location.forEach(item => distSelectorItem.value.push(item.LocationName))
         distAllInfoData.value = distData.Location
 
