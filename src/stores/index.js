@@ -2,16 +2,12 @@ import { defineStore } from 'pinia'
 
 export const useWeatherStore = defineStore('weatherData', {
   state: () => ({
-    city: [],
-    dist: []
+    dist3Day: []
   }),
 
   actions: {
-    saveCityData(data) {
-      this.city.push(data)
-    },
-    saveDistData(data) {
-      this.dist.push(data)
+    save3DayDistData(data) {
+      this.dist3Day.push(data)
     }
   }
 })

@@ -13,40 +13,15 @@
   const selectedDist = ref('')
 
   const currentDistTemp = ref({})
-  const selectedCity = ref({key: 'F-D0047-061' , value: '臺北市'})
+  const selectedCity = ref({key_3D: 'F-D0047-061', key_7D: 'F-D0047-063', value: '臺北市'})
 
   const distSelectorItem = ref([])
   const distAllInfoData = ref([])  
   const todayForecast = ref([])
 
-  // const weatherInfo = ref(null)
-
   // METHODS
-  // const getCityWeatherByWeek = async(obj) => {
-  //   console.log('getCityWeatherByWeek')
-  //   const isDataExit = store.city.find(ele => ele.LocationName === obj.value)
-
-  //   try {
-  //     if(isDataExit){
-  //       weatherInfo.value = isDataExit
-  //     } else {
-  //       const API_URL = import.meta.env.VITE_API_URL
-  //       const API_AUTH = import.meta.env.VITE_AUTH_CODE
-  
-  //       const { data } = await axios.get(`${API_URL}/F-D0047-091?Authorization=${API_AUTH}&format=JSON${obj.value?`&LocationName=${obj.value}`:''}`)
-  
-  //       weatherInfo.value = data.records.Locations[0].Location[0]
-  
-  //       // 存入 store
-  //       store.saveCityData(weatherInfo.value)
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
-
-  const getDisData = async(obj) => {
-    const isDataExit = store.dist.find(ele => ele.LocationsName === obj.value)
+  const fetchThe3DForecast = async(obj) => {
+    const isDataExit = store.dist3Day.find(ele => ele.LocationsName === obj.value)
 
     try {
       if(isDataExit) {
@@ -59,7 +34,7 @@
         const API_URL = import.meta.env.VITE_API_URL
         const API_AUTH = import.meta.env.VITE_AUTH_CODE
 
-        const { data } = await axios.get(`${API_URL}/${obj.key}?Authorization=${API_AUTH}&format=JSON`)
+        const { data } = await axios.get(`${API_URL}/${obj.key_3D}?Authorization=${API_AUTH}&format=JSON`)
 
         const distData = data.records.Locations[0]
         selectedDist.value = distData.Location[0].LocationName
@@ -69,7 +44,7 @@
         getCurrentDistWeatherInfo(selectedDist.value)
 
         // 存入 store
-        store.saveDistData(distData)
+        store.save3DayDistData(distData)
       }
     } catch (error) {
       console.log(error)
@@ -90,7 +65,7 @@
     return result
   }
 
-  const toAMPM = (dateStr) => {
+  const formatTheTimeString = (dateStr) => {
     const hour = parseInt(dateStr.slice(11, 13)) // 06 → 6
     const minute = dateStr.slice(14, 16) // "00"
 
@@ -100,14 +75,14 @@
     return `${h12}:${minute}${unit}`;
   }
 
-  const getTodayForecast = (weather, temp) => {
+  const dataEvery3HR = (weather, temp) => {
     const result = weather.Time
       .map(mapItem => {
         const startKey = mapItem.StartTime.slice(0, 13)
         const tmpItem = temp.Time.find(t => t.DataTime.slice(0, 13) === startKey)
 
         return {
-          StartTime: toAMPM(mapItem.StartTime),
+          StartTime: formatTheTimeString(mapItem.StartTime),
           ElementValue: [
             {
               Temperature: tmpItem?.ElementValue?.[0]?.Temperature ?? null,
@@ -128,8 +103,6 @@
     const realFeelElement = detail.WeatherElement[3] // 體感溫度
     const windElement = detail.WeatherElement[5] // 風速
     const windDirElement = detail.WeatherElement[6] // 風向
-    
-    getTodayForecast(weatherElement, tempElement)
 
     const tempItem = findLatestItem(tempElement.Time)
     const rainItem = findLatestItem(rainElement.Time, 'StartTime')
@@ -144,6 +117,8 @@
     currentDistTemp.value.ApparentTemperature = realFeelItem?.ElementValue[0]?.ApparentTemperature ?? null
     currentDistTemp.value.windSpeed = windItem?.ElementValue[0]?.WindSpeed ?? null
     currentDistTemp.value.windDirection = windDirItem?.ElementValue[0]?.WindDirection ?? null
+
+    dataEvery3HR(weatherElement, tempElement)
   }
 
   const getCurrentDistWeatherInfo = (dist) => {
@@ -157,7 +132,7 @@
     (obj) => {
       if (obj) {
         distSelectorItem.value = []
-        getDisData(obj)
+        fetchThe3DForecast(obj)
       }
     }, {deep: true}
   )
@@ -173,7 +148,7 @@
 
   // // MOUNTED
   onMounted(() => {
-    getDisData(selectedCity.value)
+    fetchThe3DForecast(selectedCity.value)
   })
 </script>
 
