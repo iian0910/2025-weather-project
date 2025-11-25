@@ -7,7 +7,10 @@
   import { useWeatherStore } from '@/stores/index'
   import weatherIcon from '@/assets/js/weatherImg'
 
+  import { useAlert } from '../src/composables/useAlert'
+
   const store = useWeatherStore()
+  const alert = useAlert()
 
   // DATA
   const selectedDist = ref('')
@@ -25,23 +28,28 @@
 
     try {
       if(isDataExit) {
+        alert.success('讀取成功!!!')
         distAllInfoData.value = isDataExit.Location
 
         distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
         selectedDist.value = distAllInfoData.value[0].LocationName
+        getCurrentDistWeatherInfo(selectedDist.value)
       } else {
         const data = await store.fetchThe3DayForecast(obj)
-
-        const districtData = data.records.Locations[0]
-        distAllInfoData.value = districtData.Location
-
-        selectedDist.value = distAllInfoData.value[0].LocationName
-        distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
+        if (data.success) {
+          alert.success('讀取成功!!!')
+          const districtData = data.records.Locations[0]
+          distAllInfoData.value = districtData.Location
+  
+          selectedDist.value = distAllInfoData.value[0].LocationName
+          distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
+          getCurrentDistWeatherInfo(selectedDist.value)
+        } else {
+          alert.danger('讀取失敗!!!')
+        }
       }
-
-      getCurrentDistWeatherInfo(selectedDist.value)
     } catch (error) {
-      console.log(error)
+      alert.danger(error, 'danger')
     }
   }
 

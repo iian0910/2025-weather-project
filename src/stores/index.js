@@ -18,7 +18,7 @@ export const useWeatherStore = defineStore('weatherData', {
 
       const { data } = await api.get(`/${obj.key_3D}?Authorization=${auth}&format=JSON`)
 
-      this.dist3Day.push(data.records.Locations[0])
+      if (data.success) this.dist3Day.push(data.records.Locations[0])      
 
       return data
     }
