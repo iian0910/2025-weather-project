@@ -1,6 +1,6 @@
 <!-- DATA: https://opendata.cwa.gov.tw/dist/opendata-swagger.html#/ -->
 <script setup>
-  import axios from 'axios';
+  // import axios from 'axios';
   import { onMounted, ref, watch } from 'vue';
   import { city } from '@/assets/js/location'
   // import AvgTempChart from './components/AvgTempChart.vue'
@@ -9,7 +9,7 @@
 
   const store = useWeatherStore()
 
-  // // DATA
+  // DATA
   const selectedDist = ref('')
 
   const currentDistTemp = ref({})
@@ -25,27 +25,21 @@
 
     try {
       if(isDataExit) {
-        isDataExit.Location.forEach(item => distSelectorItem.value.push(item.LocationName))
-        selectedDist.value = isDataExit.Location[0].LocationName
         distAllInfoData.value = isDataExit.Location
-        
-        getCurrentDistWeatherInfo(selectedDist.value)
+
+        distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
+        selectedDist.value = distAllInfoData.value[0].LocationName
       } else {
-        const API_URL = import.meta.env.VITE_API_URL
-        const API_AUTH = import.meta.env.VITE_AUTH_CODE
+        const data = await store.fetchThe3DForecast(obj)
 
-        const { data } = await axios.get(`${API_URL}/${obj.key_3D}?Authorization=${API_AUTH}&format=JSON`)
+        const districtData = data.records.Locations[0]
+        distAllInfoData.value = districtData.Location
 
-        const distData = data.records.Locations[0]
-        selectedDist.value = distData.Location[0].LocationName
-        distData.Location.forEach(item => distSelectorItem.value.push(item.LocationName))
-        distAllInfoData.value = distData.Location
-
-        getCurrentDistWeatherInfo(selectedDist.value)
-
-        // 存入 store
-        store.save3DayDistData(distData)
+        selectedDist.value = distAllInfoData.value[0].LocationName
+        distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
       }
+
+      getCurrentDistWeatherInfo(selectedDist.value)
     } catch (error) {
       console.log(error)
     }
@@ -126,7 +120,7 @@
     fusionCurrentWeatherInfo(singleDetail)
   }
 
-  // // WATCH
+  // WATCH
   watch(
     () => selectedCity.value,
     (obj) => {
@@ -146,7 +140,7 @@
     }, {deep: true}
   )
 
-  // // MOUNTED
+  // MOUNTED
   onMounted(() => {
     fetchThe3DForecast(selectedCity.value)
   })
