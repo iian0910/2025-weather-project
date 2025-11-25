@@ -1,5 +1,5 @@
 <script setup>
-import { alerts } from '../assets/js/alertStore';
+import { alerts } from '../stores/alertStore';
 </script>
 
 <template>

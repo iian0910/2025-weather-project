@@ -1,4 +1,4 @@
-import { showAlert } from '../assets/js/alertStore';
+import { showAlert } from '../stores/alertStore';
 
 export function useAlert() {
   return {
