@@ -20,7 +20,7 @@
   const todayForecast = ref([])
 
   // METHODS
-  const fetchThe3DForecast = async(obj) => {
+  const fetchThe3DayForecast = async(obj) => {
     const isDataExit = store.dist3Day.find(ele => ele.LocationsName === obj.value)
 
     try {
@@ -30,7 +30,7 @@
         distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
         selectedDist.value = distAllInfoData.value[0].LocationName
       } else {
-        const data = await store.fetchThe3DForecast(obj)
+        const data = await store.fetchThe3DayForecast(obj)
 
         const districtData = data.records.Locations[0]
         distAllInfoData.value = districtData.Location
@@ -126,7 +126,7 @@
     (obj) => {
       if (obj) {
         distSelectorItem.value = []
-        fetchThe3DForecast(obj)
+        fetchThe3DayForecast(obj)
       }
     }, {deep: true}
   )
@@ -142,7 +142,7 @@
 
   // MOUNTED
   onMounted(() => {
-    fetchThe3DForecast(selectedCity.value)
+    fetchThe3DayForecast(selectedCity.value)
   })
 </script>
 

@@ -13,7 +13,7 @@ export const useWeatherStore = defineStore('weatherData', {
   }),
 
   actions: {
-    async fetchThe3DForecast(obj) {
+    async fetchThe3DayForecast(obj) {
       const auth = import.meta.env.VITE_AUTH_CODE
 
       const { data } = await api.get(`/${obj.key_3D}?Authorization=${auth}&format=JSON`)
