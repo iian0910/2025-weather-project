@@ -23,22 +23,18 @@
   const fetchThe3DayForecast = async(obj) => {
     const isDataExit = store.dist3Day.find(ele => ele.LocationsName === obj.value)
 
-    try {
-      if(isDataExit) {
-        distAllInfoData.value = isDataExit.Location
-      } else {
-        const data = await store.fetchThe3DayForecast(obj)
+    if(isDataExit) {
+      distAllInfoData.value = isDataExit.Location
+    } else {
+      const data = await store.fetchThe3DayForecast(obj)
 
-        const districtData = data.records.Locations[0]
-        distAllInfoData.value = districtData.Location
-      }
-
-      distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
-      selectedDist.value = distAllInfoData.value[0].LocationName
-      getCurrentDistWeatherInfo(selectedDist.value)
-    } catch (error) {
-      alert.danger(error, 'danger')
+      const districtData = data.records.Locations[0]
+      distAllInfoData.value = districtData.Location
     }
+
+    distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
+    selectedDist.value = distAllInfoData.value[0].LocationName
+    getCurrentDistWeatherInfo(selectedDist.value)
   }
 
   const findLatestItem = (list, timeKey = "DataTime") => {
