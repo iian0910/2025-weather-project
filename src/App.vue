@@ -83,28 +83,21 @@
   } 
 
   const fusionCurrentWeatherInfo = (detail) => {
-    const tempElement = detail.WeatherElement[0] // 溫度
-    const rainElement = detail.WeatherElement[7] // 降雨率
-    const weatherElement = detail.WeatherElement[8] // 天氣概況
-    const realFeelElement = detail.WeatherElement[3] // 體感溫度
-    const windElement = detail.WeatherElement[5] // 風速
-    const windDirElement = detail.WeatherElement[6] // 風向
+    const mapping = [
+      { idx: 0, key: 'temperature', field: 'Temperature' }, // 溫度
+      { idx: 3, key: "apparentTemperature", field: "ApparentTemperature" }, // 體感溫度
+      { idx: 5, key: "windSpeed", field: "WindSpeed" }, // 風速
+      { idx: 6, key: "windDirection", field: "WindDirection" }, // 風向
+      { idx: 7, key: "chanceOfRain", field: "ProbabilityOfPrecipitation", useStart: true }, // 3小時降雨機率
+      { idx: 8, key: "weatherCode", field: "WeatherCode", useStart: true } // 天氣現象(天氣icon)
+    ]
+    mapping.forEach(({idx, key, field, useStart}) => {
+      const element = detail.WeatherElement[idx]
+      const item = findLatestItem(element.Time, useStart ? 'StartTime': undefined)
+      currentDistTemp.value[key] = item?.ElementValue?.[0]?.[field] ?? null
+    })
 
-    const tempItem = findLatestItem(tempElement.Time)
-    const rainItem = findLatestItem(rainElement.Time, 'StartTime')
-    const weatherItem = findLatestItem(weatherElement.Time, 'StartTime')
-    const realFeelItem = findLatestItem(realFeelElement.Time)
-    const windItem = findLatestItem(windElement.Time)
-    const windDirItem = findLatestItem(windDirElement.Time)
-
-    currentDistTemp.value.temperature = tempItem?.ElementValue[0]?.Temperature ?? null
-    currentDistTemp.value.chanceOfRain = rainItem?.ElementValue[0]?.ProbabilityOfPrecipitation ?? null
-    currentDistTemp.value.weatherCode = weatherItem?.ElementValue[0]?.WeatherCode ?? null
-    currentDistTemp.value.ApparentTemperature = realFeelItem?.ElementValue[0]?.ApparentTemperature ?? null
-    currentDistTemp.value.windSpeed = windItem?.ElementValue[0]?.WindSpeed ?? null
-    currentDistTemp.value.windDirection = windDirItem?.ElementValue[0]?.WindDirection ?? null
-
-    dataEvery3HR(weatherElement, tempElement)
+    dataEvery3HR(detail.WeatherElement[8], detail.WeatherElement[0])
   }
 
   const getCurrentDistWeatherInfo = (dist) => {
@@ -205,7 +198,7 @@
             <div class="row pl-2">
               <div class="col-12 col-md-6 mb-3">
                 <i class="subTitle bi bi-thermometer-half"></i><span class="subTitle ml-3">體感溫度</span>
-                <div class="air_content">{{ currentDistTemp.ApparentTemperature }}&#8451;</div>
+                <div class="air_content">{{ currentDistTemp.apparentTemperature }}&#8451;</div>
               </div>
               <div class="col-12 col-md-6 mb-3">
                 <i class="subTitle bi bi-cloud-rain-fill"></i><span class="subTitle ml-3">降雨機率</span>
