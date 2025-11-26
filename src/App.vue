@@ -1,11 +1,13 @@
 <!-- DATA: https://opendata.cwa.gov.tw/dist/opendata-swagger.html#/ -->
 <script setup>
-  // import axios from 'axios';
   import { onMounted, ref, watch } from 'vue';
   import { city } from '@/assets/js/location'
   // import AvgTempChart from './components/AvgTempChart.vue'
   import { useWeatherStore } from '@/stores/index'
   import weatherIcon from '@/assets/js/weatherImg'
+  import { formatTheTimeString } from '@/assets/js/common'
+
+  import _ from 'lodash'
 
   const store = useWeatherStore()
 
@@ -16,24 +18,19 @@
   const selectedCity = ref({key_3D: 'F-D0047-061', key_7D: 'F-D0047-063', value: '臺北市'})
 
   const distSelectorItem = ref([])
-  const distAllInfoData = ref([])  
+  // const distAllInfoData = ref([])
   const todayForecast = ref([])
 
   // METHODS
-  const fetchThe3DayForecast = async(obj) => {
-    const isDataExit = store.dist3Day.find(ele => ele.LocationsName === obj.value)
+  const fetchWeatherForecast = async(obj) => {
+    // 從 store 發送 3 日跟 7 日的預報 API 並回傳
+    // 從 store 整理行政區的下拉選項並回傳
+    await store.fetchWeatherForecast(obj)
 
-    if(isDataExit) {
-      distAllInfoData.value = isDataExit.Location
-    } else {
-      const data = await store.fetchThe3DayForecast(obj)
+    const districtData = _.pick(store.dist3Day, obj.key_3D)
+    distSelectorItem.value = districtData[obj.key_3D].map(item => item.LocationName)
+    selectedDist.value = distSelectorItem.value[0] // 鄉鎮預設選第一個項目
 
-      const districtData = data.records.Locations[0]
-      distAllInfoData.value = districtData.Location
-    }
-
-    distAllInfoData.value.forEach(item => distSelectorItem.value.push(item.LocationName))
-    selectedDist.value = distAllInfoData.value[0].LocationName
     getCurrentDistWeatherInfo(selectedDist.value)
   }
 
@@ -49,16 +46,6 @@
     }
 
     return result
-  }
-
-  const formatTheTimeString = (dateStr) => {
-    const hour = parseInt(dateStr.slice(11, 13)) // 06 → 6
-    const minute = dateStr.slice(14, 16) // "00"
-
-    const unit = hour >= 12 ? "PM" : "AM"
-    const h12 = hour % 12 === 0 ? 12 : hour % 12
-
-    return `${h12}:${minute}${unit}`;
   }
 
   const dataEvery3HR = (weather, temp) => {
@@ -101,7 +88,7 @@
   }
 
   const getCurrentDistWeatherInfo = (dist) => {
-    const singleDetail = distAllInfoData.value.find(item => item.LocationName === dist)
+    const singleDetail = store.dist3Day[selectedCity.value.key_3D].find(item => item.LocationName === dist)
     fusionCurrentWeatherInfo(singleDetail)
   }
 
@@ -110,8 +97,7 @@
     () => selectedCity.value,
     (obj) => {
       if (obj) {
-        distSelectorItem.value = []
-        fetchThe3DayForecast(obj)
+        fetchWeatherForecast(obj)
       }
     }, {deep: true}
   )
@@ -127,7 +113,7 @@
 
   // MOUNTED
   onMounted(() => {
-    fetchThe3DayForecast(selectedCity.value)
+    fetchWeatherForecast(selectedCity.value)
   })
 </script>
 
@@ -219,11 +205,11 @@
           <div class="city_weather">Area_1</div>
         </div>
       </div>
-      <!-- 
-        <AvgTempChart
-            :temp-data="weatherInfo"
-          />
-      -->
+      
+      <!-- <AvgTempChart
+        :temp-data="weatherInfo"
+      />-->
+      
     </div>
   </div>
 </template>
