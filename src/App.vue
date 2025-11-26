@@ -20,6 +20,9 @@
   const distSelectorItem = ref([])
   const todayForecast = ref([])
   const next7DayForecast = ref([])
+  const renderWeatherInfo = ref([])
+
+  const isOn = ref(true)
 
   // METHODS
   const fetchWeatherForecast = async(obj) => {
@@ -102,12 +105,16 @@
       if (!dayItem) {
         dayItem = {
           Date: date,
-          ElementValue: [
+          Day: [
             {
-              DayTemperature: null,
-              DayWeatherCode: null,
-              NighTemperature: null,
-              NighWeatherCode: null
+              Temperature: null,
+              WeatherCode: null
+            }
+          ],
+          Night: [
+            {
+              Temperature: null,
+              WeatherCode: null
             }
           ]
         }
@@ -117,16 +124,17 @@
       const temp = item.ElementValue[0].Temperature;
   
       if (hour === 6 || hour === 12) {
-        dayItem.ElementValue[0].DayTemperature = temp
-        dayItem.ElementValue[0].DayWeatherCode = weatherCode
+        dayItem.Day[0].Temperature = temp
+        dayItem.Day[0].WeatherCode = weatherCode
       } else if (hour === 18) {
-        dayItem.ElementValue[0].NighTemperature = temp
-        dayItem.ElementValue[0].NighWeatherCode = weatherCode
+        dayItem.Night[0].Temperature = temp
+        dayItem.Night[0].WeatherCode = weatherCode
       }
     })
 
     next7DayForecast.value = result
-    console.log(next7DayForecast.value)
+    renderWeatherInfo.value = next7DayForecast.value
+    console.log('first', next7DayForecast.value)
   }
 
   const getWeatherInfo = (dist) => {
@@ -155,6 +163,20 @@
         getWeatherInfo(dist)
       }
     }, {deep: true}
+  )
+
+  watch(
+    () => isOn.value,
+    (value) => {
+      console.log(value)
+      if (value) {
+        renderWeatherInfo.value = next7DayForecast.value
+      } else {
+        renderWeatherInfo.value = next7DayForecast.value
+      }
+
+      console.log(renderWeatherInfo.value)
+    }, {immediate: true}
   )
 
   // MOUNTED
@@ -215,7 +237,7 @@
             <h6 class="title mb-3">3小時預報</h6>
             <div class="row">
               <div
-                class="col-6 col-md-2 text-center"
+                class="col-6 col-md-2 text-center forecast3HR"
                 v-for="(item, idx) in todayForecast"
                 :key="idx"
               >
@@ -249,18 +271,18 @@
         </div>
         <div class="col-12 col-md-4 mt-3 mt-md-0">
           <div class="city_weather">
-            <h6 class="title mb-3">一周預報</h6>
-            <div class="next7DayForecast" v-for="item in next7DayForecast" :key="item.Date">
-              <div class="subTitle mb-3">{{ item.Date }}</div>
-              <div class="d-flex justify-content-around">
-                <div class="d-flex align-items-center">
-                  <img class="mr-3" :src="weatherIcon[`icon${item.ElementValue[0].DayWeatherCode}`]" alt="" width="50px" height="50px">
-                  <div>{{item.ElementValue[0].DayTemperature}}&#8451;</div>
-                </div>
-                <div class="d-flex align-items-center">
-                  <img class="mr-3" :src="weatherIcon[`iconNight${item.ElementValue[0].NighWeatherCode}`]" alt="" width="50px" height="50px">
-                  <div>{{item.ElementValue[0].NighTemperature}}&#8451;</div>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="title mb-0">一周預報</h6>
+              <div class="custom-control custom-switch">
+                <input v-model="isOn" type="checkbox" class="custom-control-input" id="customSwitch1">
+                <label class="custom-control-label" for="customSwitch1">{{isOn ? '早上' : '夜晚'}}</label>
+              </div>
+            </div>
+            <div class="next7DayForecast d-flex justify-content-between align-items-center" v-for="item in renderWeatherInfo" :key="item.Date">
+              <div class="subTitle">{{ item.Date }}</div>
+              <div class="d-flex align-items-center">
+                <img class="mr-3" :src="weatherIcon[`icon${isOn ? '' : 'Night'}${item[isOn ? 'Day' : 'Night'][0].WeatherCode}`]" alt="" width="50px" height="50px">
+                <div>{{item[isOn ? 'Day' : 'Night'][0].Temperature}}&#8451;</div>
               </div>
             </div>
           </div>
