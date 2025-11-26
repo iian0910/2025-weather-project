@@ -46,3 +46,11 @@
 .subTitle {
   color: #ffffff80;
 }
+
+.next7DayForecast {
+  padding-bottom: 16px;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}

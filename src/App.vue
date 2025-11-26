@@ -18,8 +18,8 @@
   const selectedCity = ref({key_3D: 'F-D0047-061', key_7D: 'F-D0047-063', value: '臺北市'})
 
   const distSelectorItem = ref([])
-  // const distAllInfoData = ref([])
   const todayForecast = ref([])
+  const next7DayForecast = ref([])
 
   // METHODS
   const fetchWeatherForecast = async(obj) => {
@@ -31,7 +31,7 @@
     distSelectorItem.value = districtData[obj.key_3D].map(item => item.LocationName)
     selectedDist.value = distSelectorItem.value[0] // 鄉鎮預設選第一個項目
 
-    getCurrentDistWeatherInfo(selectedDist.value)
+    getWeatherInfo(selectedDist.value)
   }
 
   const findLatestItem = (list, timeKey = "DataTime") => {
@@ -69,7 +69,7 @@
     todayForecast.value = result.slice(0, 6)
   } 
 
-  const fusionCurrentWeatherInfo = (detail) => {
+  const fusion3DayWeatherInfo = (weatherObj) => {
     const mapping = [
       { idx: 0, key: 'temperature', field: 'Temperature' }, // 溫度
       { idx: 3, key: "apparentTemperature", field: "ApparentTemperature" }, // 體感溫度
@@ -79,17 +79,63 @@
       { idx: 8, key: "weatherCode", field: "WeatherCode", useStart: true } // 天氣現象(天氣icon)
     ]
     mapping.forEach(({idx, key, field, useStart}) => {
-      const element = detail.WeatherElement[idx]
+      const element = weatherObj.WeatherElement[idx]
       const item = findLatestItem(element.Time, useStart ? 'StartTime': undefined)
       currentDistTemp.value[key] = item?.ElementValue?.[0]?.[field] ?? null
     })
-
-    dataEvery3HR(detail.WeatherElement[8], detail.WeatherElement[0])
   }
 
-  const getCurrentDistWeatherInfo = (dist) => {
-    const singleDetail = store.dist3Day[selectedCity.value.key_3D].find(item => item.LocationName === dist)
-    fusionCurrentWeatherInfo(singleDetail)
+  const fusion7DayWeatherInfo = (weatherObj) => {
+    const result = []
+    const avgTemp = weatherObj.WeatherElement[0].Time
+    const weather = weatherObj.WeatherElement[12].Time
+
+    avgTemp.forEach((item, index) => {
+      const date = item.StartTime.slice(0, 10)
+      const hour = parseInt(item.StartTime.slice(11, 13))
+
+      const weatherItem = weather[index]
+      const weatherCode = weatherItem?.ElementValue?.[0]?.WeatherCode ?? null
+
+      let dayItem = result.find(item => item.Date === date)
+
+      if (!dayItem) {
+        dayItem = {
+          Date: date,
+          ElementValue: [
+            {
+              DayTemperature: null,
+              DayWeatherCode: null,
+              NighTemperature: null,
+              NighWeatherCode: null
+            }
+          ]
+        }
+        result.push(dayItem)
+      }
+      
+      const temp = item.ElementValue[0].Temperature;
+  
+      if (hour === 6 || hour === 12) {
+        dayItem.ElementValue[0].DayTemperature = temp
+        dayItem.ElementValue[0].DayWeatherCode = weatherCode
+      } else if (hour === 18) {
+        dayItem.ElementValue[0].NighTemperature = temp
+        dayItem.ElementValue[0].NighWeatherCode = weatherCode
+      }
+    })
+
+    next7DayForecast.value = result
+    console.log(next7DayForecast.value)
+  }
+
+  const getWeatherInfo = (dist) => {
+    const weatherObj3Day = store.dist3Day[selectedCity.value.key_3D].find(item => item.LocationName === dist)
+    const weatherObj7Day = store.dist7Day[selectedCity.value.key_7D].find(item => item.LocationName === dist)
+
+    fusion3DayWeatherInfo(weatherObj3Day)
+    fusion7DayWeatherInfo(weatherObj7Day)
+    dataEvery3HR(weatherObj3Day.WeatherElement[8], weatherObj3Day.WeatherElement[0])
   }
 
   // WATCH
@@ -106,7 +152,7 @@
     () => selectedDist.value,
     (dist) => {
       if (dist) {
-        getCurrentDistWeatherInfo(dist)
+        getWeatherInfo(dist)
       }
     }, {deep: true}
   )
@@ -175,7 +221,7 @@
               >
                 <div class="subTitle mb-3">{{item.StartTime}}</div>
                 <img class="mb-3" :src="weatherIcon[`icon${item.ElementValue[0].WeatherCode}`]" alt="" width="50px" height="50px">
-                <h5 class="font-weight-bold mb-0">{{item.ElementValue[0].Temperature}}</h5>
+                <h5 class="font-weight-bold mb-0">{{item.ElementValue[0].Temperature}}&#8451;</h5>
               </div>
             </div>
           </div>
@@ -202,7 +248,22 @@
           </div>
         </div>
         <div class="col-12 col-md-4 mt-3 mt-md-0">
-          <div class="city_weather">Area_1</div>
+          <div class="city_weather">
+            <h6 class="title mb-3">一周預報</h6>
+            <div class="next7DayForecast" v-for="item in next7DayForecast" :key="item.Date">
+              <div class="subTitle mb-3">{{ item.Date }}</div>
+              <div class="d-flex justify-content-around">
+                <div class="d-flex align-items-center">
+                  <img class="mr-3" :src="weatherIcon[`icon${item.ElementValue[0].DayWeatherCode}`]" alt="" width="50px" height="50px">
+                  <div>{{item.ElementValue[0].DayTemperature}}&#8451;</div>
+                </div>
+                <div class="d-flex align-items-center">
+                  <img class="mr-3" :src="weatherIcon[`iconNight${item.ElementValue[0].NighWeatherCode}`]" alt="" width="50px" height="50px">
+                  <div>{{item.ElementValue[0].NighTemperature}}&#8451;</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
