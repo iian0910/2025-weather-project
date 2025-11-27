@@ -1,5 +1,6 @@
 <script setup>
   import { computed } from 'vue';
+  import AreaTitle from './AreaTitle.vue'
   import weatherIcon from '@/assets/js/weatherImg'
 
   const props = defineProps({
@@ -24,8 +25,7 @@
 </script>
 
 <template>
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h6 class="title mb-0">一周預報</h6>
+  <AreaTitle title="一周預報">
     <div class="custom-control custom-switch">
       <input
         type="checkbox"
@@ -35,7 +35,7 @@
       >
       <label class="custom-control-label" for="customSwitch1">{{model ? '早上' : '夜晚'}}</label>
     </div>
-  </div>
+  </AreaTitle>
   <div class="next7DayForecast d-flex justify-content-between align-items-center" v-for="item in props.renderWeatherInfo" :key="item.Date">
     <div class="subTitle">{{ item.Date }}</div>
     <div class="d-flex align-items-center">

@@ -1,4 +1,6 @@
-<script setup>  
+<script setup>
+  import AreaTitle from './AreaTitle.vue'
+
   const props = defineProps({
     currentDistTemp: {
       type: Object,
@@ -8,7 +10,7 @@
 </script>
 
 <template>
-  <h6 class="title mb-3">空氣條件</h6>
+  <AreaTitle title="空氣條件"/>
   <div class="row pl-2">
     <div class="col-6 mb-3">
       <i class="subTitle bi bi-thermometer-half"></i><span class="subTitle ml-3">體感溫度</span>

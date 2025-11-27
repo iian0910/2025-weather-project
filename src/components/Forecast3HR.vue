@@ -1,4 +1,5 @@
 <script setup>
+  import AreaTitle from './AreaTitle.vue'
   import weatherIcon from '@/assets/js/weatherImg'
 
   const props = defineProps({
@@ -10,7 +11,7 @@
 </script>
 
 <template>
-  <h6 class="title mb-3">3小時預報</h6>
+  <AreaTitle title="3小時預報"/>
   <div class="row">
     <div
       class="mb-3 mb-md-0 col-4 col-md-2 text-center forecast3HR"
