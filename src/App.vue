@@ -153,6 +153,7 @@
   watch(
     () => selectedCity.value,
     (obj) => {
+      isMorning.value = true
       if (obj) {
         fetchWeatherForecast(obj)
       }
@@ -162,6 +163,7 @@
   watch(
     () => selectedDist.value,
     (dist) => {
+      isMorning.value = true
       if (dist) {
         getWeatherInfo(dist)
       }
@@ -170,12 +172,8 @@
 
   watch(
     () => isMorning.value,
-    (value) => {
-      if (value) {
-        renderWeatherInfo.value = next7DayForecast.value
-      } else {
-        renderWeatherInfo.value = next7DayForecast.value
-      }
+    () => {
+      renderWeatherInfo.value = next7DayForecast.value
     }, {immediate: true}
   )
 
