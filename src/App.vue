@@ -186,12 +186,12 @@
 </script>
 
 <template>
-  <div class="weather_bg">
+  <div class="weather_bg min-vh-100">
     <div class="container">
       <div class="row">
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-8 my-3">
           <div class="dist_weather">
-            <div class="d-flex mb-3">
+            <div class="d-flex mb-5">
               <select
                 class="form-control mx-1 selector"
                 id="city_selector"
@@ -237,7 +237,7 @@
             <h6 class="title mb-3">3小時預報</h6>
             <div class="row">
               <div
-                class="col-6 col-md-2 text-center forecast3HR"
+                class="mb-3 mb-md-0 col-4 col-md-2 text-center forecast3HR"
                 v-for="(item, idx) in todayForecast"
                 :key="idx"
               >
@@ -250,26 +250,26 @@
           <div class="dist_weather">
             <h6 class="title mb-3">空氣條件</h6>
             <div class="row pl-2">
-              <div class="col-12 col-md-6 mb-3">
+              <div class="col-6 mb-3">
                 <i class="subTitle bi bi-thermometer-half"></i><span class="subTitle ml-3">體感溫度</span>
                 <div class="air_content">{{ currentDistTemp.apparentTemperature }}&#8451;</div>
               </div>
-              <div class="col-12 col-md-6 mb-3">
+              <div class="col-6 mb-3">
                 <i class="subTitle bi bi-cloud-rain-fill"></i><span class="subTitle ml-3">降雨機率</span>
                 <div class="air_content">{{ currentDistTemp.chanceOfRain }}%</div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <i class="subTitle bi bi-wind"></i><span class="subTitle ml-3">風速</span>
                 <div class="air_content">{{ currentDistTemp.windSpeed }}</div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <i class="subTitle bi bi-signpost-split-fill"></i><span class="subTitle ml-3">風向</span>
                 <div class="air_content">{{ currentDistTemp.windDirection }}</div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-4 mt-3 mt-md-0">
+        <div class="col-12 col-md-4 my-3">
           <div class="city_weather">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="title mb-0">一周預報</h6>
@@ -296,3 +296,11 @@
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.forecast3HR {
+  @media (max-width:641px) {
+    border-right: 0;
+  }
+}
+</style>
