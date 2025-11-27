@@ -4,8 +4,12 @@
   import { city } from '@/assets/js/location'
   // import AvgTempChart from './components/AvgTempChart.vue'
   import { useWeatherStore } from '@/stores/index'
-  import weatherIcon from '@/assets/js/weatherImg'
   import { formatTheTimeString } from '@/assets/js/common'
+
+  import SingleDistWeather from './components/SingleDistWeather.vue';
+  import Forecast3HR from './components/Forecast3HR.vue';
+  import ForecastWeekly from './components/ForecastWeekly.vue';
+  import AirConditions from './components/AirConditions.vue';
 
   import _ from 'lodash'
 
@@ -22,7 +26,7 @@
   const next7DayForecast = ref([])
   const renderWeatherInfo = ref([])
 
-  const isOn = ref(true)
+  const isMorning = ref(true)
 
   // METHODS
   const fetchWeatherForecast = async(obj) => {
@@ -134,7 +138,6 @@
 
     next7DayForecast.value = result
     renderWeatherInfo.value = next7DayForecast.value
-    console.log('first', next7DayForecast.value)
   }
 
   const getWeatherInfo = (dist) => {
@@ -166,16 +169,13 @@
   )
 
   watch(
-    () => isOn.value,
+    () => isMorning.value,
     (value) => {
-      console.log(value)
       if (value) {
         renderWeatherInfo.value = next7DayForecast.value
       } else {
         renderWeatherInfo.value = next7DayForecast.value
       }
-
-      console.log(renderWeatherInfo.value)
     }, {immediate: true}
   )
 
@@ -190,101 +190,62 @@
     <div class="container">
       <div class="row">
         <div class="col-12 col-md-8 my-3">
-          <div class="dist_weather">
-            <div class="d-flex mb-5">
-              <select
-                class="form-control mx-1 selector"
-                id="city_selector"
-                v-model="selectedCity"
-              >
-                <option value="null" disabled selected>選擇縣市</option>
-                <option
-                  v-for="location in city"
-                  :value="location"
-                  :key="location.key"
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex">
+                <select
+                  class="form-control mx-1 selector"
+                  id="city_selector"
+                  v-model="selectedCity"
                 >
-                  {{location.value}}
-                </option>
-              </select>
-              <select
-                class="form-control mx-1 selector"
-                id="dir_selector"
-                v-model="selectedDist"
-              >
-                <option value="null" disabled selected>選擇行政區</option>
-                <option
-                  v-for="(dist, idx) in distSelectorItem"
-                  :key="idx"
+                  <option value="null" disabled selected>選擇縣市</option>
+                  <option
+                    v-for="location in city"
+                    :value="location"
+                    :key="location.key"
+                  >
+                    {{location.value}}
+                  </option>
+                </select>
+                <select
+                  class="form-control mx-1 selector"
+                  id="dir_selector"
+                  v-model="selectedDist"
                 >
-                  {{dist}}
-                </option>
-              </select>
-            </div>
-            <div class="d-flex justify-content-between">
-              <div>
-                <div class="mb-3">
-                  <h3>{{ selectedDist }}</h3>
-                  <h6 class="subTitle">降雨機率：{{ currentDistTemp.chanceOfRain }}%</h6>
-                </div>
-                <div class="main_temp">
-                  {{ currentDistTemp.temperature }}&#8451;
-                </div>
-              </div>
-              <img :src="weatherIcon[`icon${currentDistTemp.weatherCode}`]" width="130px" alt="">
-            </div>
-          </div>
-          <div class="dist_weather">
-            <h6 class="title mb-3">3小時預報</h6>
-            <div class="row">
-              <div
-                class="mb-3 mb-md-0 col-4 col-md-2 text-center forecast3HR"
-                v-for="(item, idx) in todayForecast"
-                :key="idx"
-              >
-                <div class="subTitle mb-3">{{item.StartTime}}</div>
-                <img class="mb-3" :src="weatherIcon[`icon${item.ElementValue[0].WeatherCode}`]" alt="" width="50px" height="50px">
-                <h5 class="font-weight-bold mb-0">{{item.ElementValue[0].Temperature}}&#8451;</h5>
+                  <option value="null" disabled selected>選擇行政區</option>
+                  <option
+                    v-for="(dist, idx) in distSelectorItem"
+                    :key="idx"
+                  >
+                    {{dist}}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
-          <div class="dist_weather">
-            <h6 class="title mb-3">空氣條件</h6>
-            <div class="row pl-2">
-              <div class="col-6 mb-3">
-                <i class="subTitle bi bi-thermometer-half"></i><span class="subTitle ml-3">體感溫度</span>
-                <div class="air_content">{{ currentDistTemp.apparentTemperature }}&#8451;</div>
+          <div class="row">
+            <div class="col-12">
+              <div class="dist_weather">
+                <SingleDistWeather
+                  :selectedDist="selectedDist"
+                  :currentDistTemp="currentDistTemp"
+                />
               </div>
-              <div class="col-6 mb-3">
-                <i class="subTitle bi bi-cloud-rain-fill"></i><span class="subTitle ml-3">降雨機率</span>
-                <div class="air_content">{{ currentDistTemp.chanceOfRain }}%</div>
+              <div class="dist_weather">
+                <Forecast3HR :todayForecast="todayForecast"/>
               </div>
-              <div class="col-6">
-                <i class="subTitle bi bi-wind"></i><span class="subTitle ml-3">風速</span>
-                <div class="air_content">{{ currentDistTemp.windSpeed }}</div>
-              </div>
-              <div class="col-6">
-                <i class="subTitle bi bi-signpost-split-fill"></i><span class="subTitle ml-3">風向</span>
-                <div class="air_content">{{ currentDistTemp.windDirection }}</div>
+              <div class="dist_weather">
+                <AirConditions :currentDistTemp="currentDistTemp"/>
               </div>
             </div>
           </div>
         </div>
         <div class="col-12 col-md-4 my-3">
           <div class="city_weather">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="title mb-0">一周預報</h6>
-              <div class="custom-control custom-switch">
-                <input v-model="isOn" type="checkbox" class="custom-control-input" id="customSwitch1">
-                <label class="custom-control-label" for="customSwitch1">{{isOn ? '早上' : '夜晚'}}</label>
-              </div>
-            </div>
-            <div class="next7DayForecast d-flex justify-content-between align-items-center" v-for="item in renderWeatherInfo" :key="item.Date">
-              <div class="subTitle">{{ item.Date }}</div>
-              <div class="d-flex align-items-center">
-                <img class="mr-3" :src="weatherIcon[`icon${isOn ? '' : 'Night'}${item[isOn ? 'Day' : 'Night'][0].WeatherCode}`]" alt="" width="50px" height="50px">
-                <div>{{item[isOn ? 'Day' : 'Night'][0].Temperature}}&#8451;</div>
-              </div>
-            </div>
+            <ForecastWeekly
+              v-model:is-morning="isMorning"
+              :renderWeatherInfo="renderWeatherInfo"
+            />
           </div>
         </div>
       </div>
