@@ -44,11 +44,19 @@
   const findLatestItem = (list, timeKey = "DataTime") => {
     const now = Date.now(); // 毫秒數效率較高
     let result = null
+    let minDiff = Infinity
 
     for (const item of list) {
       const itemTime = new Date(item[timeKey]).getTime();
-      if (itemTime <= now) {
-        result = item
+
+      // 若時間晚於現在，直接跳過
+      if (itemTime > now) continue;
+
+      const diff = now - itemTime; // 距離現在的差距（越小越接近）
+
+      if (diff < minDiff) {
+        minDiff = diff;
+        result = item;
       }
     }
 
@@ -255,11 +263,3 @@
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.forecast3HR {
-  @media (max-width:641px) {
-    border-right: 0;
-  }
-}
-</style>
