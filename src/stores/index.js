@@ -20,10 +20,31 @@ export const useWeatherStore = defineStore('weatherData', {
   state: () => ({
     dist3Day: {},
     dist7Day: {},
-    currentObj: null
+    currentObj: null,
+    date: null
   }),
 
   actions: {
+    clearDate() {
+      this.date = null
+      localStorage.removeItem('weather_data')
+    },
+    checkDailyReset() {
+      const lastReset = localStorage.getItem('last_reset')
+      const now = new Date()
+
+      const today = now.toISOString().slice(0, 10)
+
+      if (lastReset === today) return // 當天資料重置過就跳過
+
+      const sixAM = new Date()
+      sixAM.setHours(6,0,0,0)
+
+      if(now >= sixAM) {
+        this.clearDate()
+        localStorage.setItem('last_reset', today)
+      }
+    },
     async fetchWeatherForecast(obj) {
       loading.show()
 
@@ -65,5 +86,7 @@ export const useWeatherStore = defineStore('weatherData', {
         }
       }
     }
-  }
+  },
+
+  persist: true
 })

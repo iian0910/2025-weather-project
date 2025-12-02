@@ -189,6 +189,9 @@
   onMounted(() => {
     fetchWeatherForecast(selectedCity.value)
   })
+
+  // CREATE
+  store.checkDailyReset()
 </script>
 
 <template>

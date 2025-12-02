@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPersist from 'pinia-plugin-persistedstate'
 
 import './assets/style/main.scss'
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -21,7 +22,10 @@ const loadingComp = document.createElement('div');
 document.body.appendChild(loadingComp);
 createApp(BaseLoading).mount(loadingComp);
 
-app.use(createPinia())
+const pinia = createPinia()
+
+pinia.use(piniaPersist)
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
