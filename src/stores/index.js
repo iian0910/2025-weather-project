@@ -27,7 +27,7 @@ export const useWeatherStore = defineStore('weatherData', {
   actions: {
     clearDate() {
       this.date = null
-      localStorage.removeItem('weather_data')
+      localStorage.removeItem('weatherData')
     },
     checkDailyReset() {
       const lastReset = localStorage.getItem('last_reset')
@@ -49,9 +49,7 @@ export const useWeatherStore = defineStore('weatherData', {
       loading.show()
 
       this.currentObj = obj
-      const isDataExit =
-        Object.keys(this.dist3Day).find(key => key === this.currentObj.key_3D) ||
-        Object.keys(this.dist7Day).find(key => key === this.currentObj.key_7D)
+      const isDataExit = localStorage.getItem('weatherData')
 
       if (isDataExit) {
         loading.hide()
