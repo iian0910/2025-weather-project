@@ -14,7 +14,7 @@
   <AreaTitle title="3小時預報"/>
   <div class="row">
     <div
-      class="mb-3 mb-md-0 col-4 col-md-2 text-center forecast3HR"
+      class="mb-3 mb-md-0 col-6 col-sm-4 col-lg-2 text-center forecast3HR"
       v-for="(item, idx) in props.todayForecast"
       :key="idx"
     >
@@ -27,7 +27,7 @@
 
 <style lang="scss" scoped>
 .forecast3HR {
-  @media (max-width:641px) {
+  @media (max-width:992px) {
     border-right: 0;
   }
 }
