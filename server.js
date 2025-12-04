@@ -1,6 +1,6 @@
 import express from "express"
 const app = express();
-const PORT = import.meta.env.PORT || 3000;
+const PORT = import.meta.env.VITE_PORT || 3000;
 
 // 你要每天執行的功能
 async function runDailyJob() {
