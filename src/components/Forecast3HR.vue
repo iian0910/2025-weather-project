@@ -24,11 +24,3 @@
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.forecast3HR {
-  @media (max-width:992px) {
-    border-right: 0;
-  }
-}
-</style>

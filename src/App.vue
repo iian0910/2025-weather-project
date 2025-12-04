@@ -266,12 +266,3 @@
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.dist_weather,
-.city_weather {
-  @media (max-width:992px) {
-    padding: 26px;
-  }
-}
-</style>
